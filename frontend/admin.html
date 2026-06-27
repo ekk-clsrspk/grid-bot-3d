@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Grid Bot 3D administration dashboard" />
+  <title>Grid Bot 3D — Admin Console</title>
+  <link rel="stylesheet" href="./fonts.css" />
+  <link rel="stylesheet" href="./admin.css" />
+  <link rel="stylesheet" href="./admin-minimal.css" />
+</head>
+
+<body>
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <a class="admin-brand" href="/admin" aria-label="Grid Bot Admin">
+        <span class="admin-brand-mark" aria-hidden="true">
+          <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><use href="./assets/lucide-sprite.svg#bot"></use></svg>
+        </span>
+        <span><small>GRID BOT 3D</small><strong>Control room</strong></span>
+      </a>
+
+      <nav class="admin-nav" aria-label="Admin navigation">
+        <button class="active" type="button" data-view="dashboard">
+          <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#layout-dashboard"></use></svg>
+          <span>Overview</span>
+        </button>
+        <button type="button" data-view="users">
+          <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#users"></use></svg>
+          <span>Players</span>
+        </button>
+        <button type="button" data-view="submissions">
+          <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#code-xml"></use></svg>
+          <span>Submissions</span>
+        </button>
+      </nav>
+
+      <div class="admin-account">
+        <span class="admin-account-icon" aria-hidden="true">
+          <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><use href="./assets/lucide-sprite.svg#user-round"></use></svg>
+        </span>
+        <span><strong id="admin-name">Admin</strong><small>ADMINISTRATOR</small></span>
+        <button id="admin-logout" type="button" title="Sign out" aria-label="Sign out">
+          <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><use href="./assets/lucide-sprite.svg#log-out"></use></svg>
+        </button>
+      </div>
+    </aside>
+
+    <main class="admin-main">
+      <header class="admin-header">
+        <div>
+          <span id="view-kicker">CONTROL ROOM / OVERVIEW</span>
+          <h1 id="view-title">Live system status</h1>
+          <p id="view-description">Track player accounts and mission results from one place.</p>
+        </div>
+        <div class="admin-toolbar">
+          <label class="admin-search">
+            <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#search"></use></svg>
+            <input id="global-search" type="search" placeholder="Search players, email, or code" />
+            <kbd><svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#command"></use></svg><span>K</span></kbd>
+          </label>
+
+          <div id="filter-control" class="custom-filter">
+            <button id="filter-button" type="button" aria-expanded="false" aria-controls="filter-popover">
+              <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#list-filter"></use></svg>
+              <span id="filter-label">All filters</span>
+              <svg class="filter-chevron lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#chevron-down"></use></svg>
+            </button>
+            <div id="filter-popover" class="filter-popover" hidden>
+              <label>
+                <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#search"></use></svg>
+                <input id="filter-search" type="search" placeholder="Search filters..." />
+              </label>
+              <div id="filter-options" class="filter-options"></div>
+              <p id="filter-empty" hidden>No matching filters</p>
+            </div>
+          </div>
+
+          <button id="create-user-button" class="primary-action" type="button">
+            <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#plus"></use></svg>
+            Create player
+          </button>
+        </div>
+      </header>
+
+      <section id="dashboard-view" class="admin-view">
+        <div class="metric-bento">
+          <article class="metric-card metric-primary">
+            <span class="metric-icon"><svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#users"></use></svg></span>
+            <span>Total players</span>
+            <strong id="metric-users">0</strong>
+            <small><i></i><span id="metric-active-copy">0 active accounts</span></small>
+          </article>
+          <article class="metric-card">
+            <span class="metric-icon"><svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#code-xml"></use></svg></span>
+            <span>Submitted runs</span>
+            <strong id="metric-submissions">0</strong>
+            <small>Validated mission runs</small>
+          </article>
+          <article class="metric-card">
+            <span class="metric-icon"><svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#clock-3"></use></svg></span>
+            <span>Average time</span>
+            <strong id="metric-duration">0:00</strong>
+            <small>From mission start to submission</small>
+          </article>
+          <article class="metric-card">
+            <span class="metric-icon"><svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#shield-check"></use></svg></span>
+            <span>Overall completion</span>
+            <strong id="metric-completion">0%</strong>
+            <small><span id="metric-suspended">0 suspended accounts</span></small>
+          </article>
+        </div>
+
+        <div class="dashboard-grid">
+          <article class="admin-panel mission-pulse-panel">
+            <header class="panel-heading">
+              <div><span>MISSION PULSE</span><h2>Mission performance</h2></div>
+              <small>Based on all validated submissions</small>
+            </header>
+            <div id="mission-pulse" class="mission-pulse"></div>
+          </article>
+          <article class="admin-panel recent-panel">
+            <header class="panel-heading">
+              <div><span>LIVE ACTIVITY</span><h2>Recent activity</h2></div>
+              <button type="button" data-open-view="submissions">View all</button>
+            </header>
+            <div id="recent-submissions" class="recent-list"></div>
+          </article>
+        </div>
+      </section>
+
+      <section id="users-view" class="admin-view" hidden>
+        <article class="admin-panel table-panel">
+          <header class="table-heading">
+            <div><span>ACCOUNT DIRECTORY</span><h2>Player accounts</h2></div>
+            <span id="users-count">0 items</span>
+          </header>
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr><th>Player</th><th>Status</th><th>Submissions</th><th>Best stars</th><th>Last seen</th><th></th></tr>
+              </thead>
+              <tbody id="users-table-body"></tbody>
+            </table>
+          </div>
+          <div id="users-empty" class="empty-state" hidden>
+            <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#user-round"></use></svg>
+            <strong>No player accounts found</strong><span>Try a different search or filter.</span>
+          </div>
+        </article>
+      </section>
+
+      <section id="submissions-view" class="admin-view" hidden>
+        <article class="admin-panel table-panel">
+          <header class="table-heading">
+            <div><span>VALIDATED RUNS</span><h2>Submission history</h2></div>
+            <span id="submissions-count">0 items</span>
+          </header>
+          <div class="data-table-wrap">
+            <table class="data-table submission-table">
+              <thead>
+                <tr><th>Player</th><th>Mission</th><th>Result</th><th>Time</th><th>Submitted</th><th></th></tr>
+              </thead>
+              <tbody id="submissions-table-body"></tbody>
+            </table>
+          </div>
+          <div id="submissions-empty" class="empty-state" hidden>
+            <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#code-xml"></use></svg>
+            <strong>No submissions found</strong><span>Try a different search or filter.</span>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <aside id="submission-drawer" class="detail-drawer" aria-labelledby="drawer-title" hidden>
+    <div class="drawer-scrim" data-close-drawer></div>
+    <section>
+      <header>
+        <div><span>RUN INSPECTOR</span><h2 id="drawer-title">Run details</h2></div>
+        <button type="button" data-close-drawer aria-label="Close details">
+          <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><use href="./assets/lucide-sprite.svg#x"></use></svg>
+        </button>
+      </header>
+      <div id="drawer-content" class="drawer-content"></div>
+    </section>
+  </aside>
+
+  <div id="user-modal" class="admin-modal" role="dialog" aria-modal="true" aria-labelledby="user-modal-title" hidden>
+    <div class="modal-scrim" data-close-modal></div>
+    <section class="modal-card">
+      <header>
+        <div><span>ACCOUNT EDITOR</span><h2 id="user-modal-title">Create player account</h2></div>
+        <button type="button" data-close-modal aria-label="Close">
+          <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><use href="./assets/lucide-sprite.svg#x"></use></svg>
+        </button>
+      </header>
+      <form id="user-form">
+        <input id="user-id" name="id" type="hidden" />
+        <label><span>Username</span><input name="username" type="text" minlength="3" maxlength="32" required /></label>
+        <label><span>Email</span><input name="email" type="email" required /></label>
+        <label><span id="password-label">Password</span><input name="password" type="password" minlength="8" /></label>
+        <label id="status-field" hidden>
+          <span>Account status</span>
+          <div class="status-segment">
+            <button class="active" type="button" data-status="active">Active</button>
+            <button type="button" data-status="suspended">Suspended</button>
+          </div>
+        </label>
+        <p id="user-form-error" class="form-error" role="alert" hidden></p>
+        <footer>
+          <button type="button" data-close-modal>Cancel</button>
+          <button id="save-user-button" type="submit">Save account</button>
+        </footer>
+      </form>
+    </section>
+  </div>
+
+  <div id="delete-modal" class="admin-modal" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title" hidden>
+    <div class="modal-scrim" data-close-delete></div>
+    <section class="modal-card compact">
+      <header>
+        <div><span>DESTRUCTIVE ACTION</span><h2 id="delete-modal-title">Delete player account?</h2></div>
+      </header>
+      <p id="delete-copy">All scores and history will be permanently removed.</p>
+      <footer>
+        <button type="button" data-close-delete>Cancel</button>
+        <button id="confirm-delete-button" class="danger-action" type="button">Delete account</button>
+      </footer>
+    </section>
+  </div>
+
+  <div id="admin-toast" class="admin-toast" role="status" aria-live="polite" hidden>
+    <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#check"></use></svg>
+    <span id="admin-toast-copy">Saved</span>
+  </div>
+
+  <script type="module" src="./admin.js"></script>
+</body>
+
+</html>

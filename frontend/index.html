@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Grid Bot 3D — program a robot through a 3D grid." />
+  <title>Grid Bot 3D Challenge — Mission Select</title>
+  <link rel="stylesheet" href="./fonts.css" />
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./auth-minimal.css" />
+</head>
+
+<body>
+  <section id="boot-screen" class="boot-screen" aria-label="Loading">
+    <div class="boot-mark" aria-hidden="true">
+      <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <use href="./assets/lucide-sprite.svg#bot"></use>
+      </svg>
+    </div>
+    <div>
+      <strong>GRID BOT 3D</strong>
+      <span>Syncing player profile</span>
+    </div>
+    <i aria-hidden="true"></i>
+  </section>
+
+  <section id="main-menu" class="main-menu" aria-label="Main menu" hidden>
+    <div class="menu-orb orb-one"></div>
+    <div class="menu-orb orb-two"></div>
+
+    <header class="menu-header">
+      <div class="menu-brand">
+        <div class="menu-brand-mark" aria-hidden="true">
+          <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <use href="./assets/lucide-sprite.svg#bot"></use>
+          </svg>
+        </div>
+        <div>
+          <p>CODE • MOVE • SOLVE</p>
+          <h1>GRID BOT <em>3D</em></h1>
+        </div>
+      </div>
+      <div class="menu-header-actions">
+        <div class="menu-progress">
+          <div class="progress-copy">
+            <span>MISSION PROGRESS</span>
+            <strong id="progress-label">1 / 4 unlocked</strong>
+          </div>
+          <div class="progress-ring" id="progress-ring">
+            <span id="progress-percent">25%</span>
+          </div>
+          <button id="reset-progress-button" class="icon-button" type="button" title="Reset progress"
+            aria-label="Reset progress">
+            <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <use href="./assets/lucide-sprite.svg#rotate-ccw"></use>
+            </svg>
+          </button>
+        </div>
+        <div id="account-menu" class="account-menu">
+          <button id="account-button" class="account-button" type="button" aria-expanded="false"
+            aria-controls="account-popover">
+            <span class="account-avatar" aria-hidden="true">
+              <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#user-round"></use></svg>
+            </span>
+            <span>
+              <strong id="account-username">Player</strong>
+              <small>PLAYER ACCOUNT</small>
+            </span>
+            <svg class="account-chevron lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#chevron-down"></use></svg>
+          </button>
+          <div id="account-popover" class="account-popover" hidden>
+            <div>
+              <span>Signed in as</span>
+              <strong id="account-email">player@example.com</strong>
+            </div>
+            <button id="logout-button" type="button">
+              <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#log-out"></use></svg>
+              Sign out
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="menu-content">
+      <section class="menu-intro">
+        <div>
+          <span class="menu-kicker">ROBOT TRAINING PROGRAM</span>
+          <h2>Choose a mission<br /><span>and deploy</span></h2>
+        </div>
+        <p>
+          Program each move, dodge the energy walls,
+          and guide Grid Bot to the goal in as few steps as possible.
+        </p>
+      </section>
+
+      <section id="mission-cards" class="mission-bento" aria-label="Mission select"></section>
+
+      <section class="info-bento">
+        <article class="info-card how-card">
+          <div class="info-icon" aria-hidden="true">
+            <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><use href="./assets/lucide-sprite.svg#command"></use></svg>
+          </div>
+          <div>
+            <span>HOW TO PLAY</span>
+            <h3>Think in steps<br />and watch code move</h3>
+          </div>
+          <div class="command-chips">
+            <span><svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#arrow-up"></use></svg>up</span>
+            <span><svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#arrow-down"></use></svg>down</span>
+            <span><svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#arrow-left"></use></svg>left</span>
+            <span><svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#arrow-right"></use></svg>right</span>
+          </div>
+        </article>
+
+        <article class="info-card world-card">
+          <div class="world-copy">
+            <span>THE GRID WORLD</span>
+            <h3>Training grounds above<br />the luminous valley</h3>
+            <a href="https://www.publicdomainpictures.net/en/view-image.php?image=632219&picture=fantasy-landscape-art-colorful"
+              target="_blank" rel="noreferrer">CC0 image by Martina Stokow
+              <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#external-link"></use></svg></a>
+          </div>
+        </article>
+
+        <article class="info-card score-card">
+          <span>STARS EARNED</span>
+          <strong id="total-stars">0</strong>
+          <div class="big-star" aria-hidden="true">
+            <svg class="lucide-icon icon-fill" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><use href="./assets/lucide-sprite.svg#star"></use></svg>
+          </div>
+          <p>Finish at or under PAR to earn 3 stars</p>
+        </article>
+      </section>
+    </main>
+
+    <footer class="menu-footer">
+      <span>THREE.JS • WEBGL</span>
+      <span>PROGRESS SYNCED TO SERVER</span>
+    </footer>
+  </section>
+
+  <section id="auth-screen" class="auth-screen" aria-label="Player access" hidden>
+    <article class="auth-card">
+      <div class="auth-product">
+        <div class="menu-brand-mark" aria-hidden="true">
+          <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><use href="./assets/lucide-sprite.svg#bot"></use></svg>
+        </div>
+        <div>
+          <p>CODE • MOVE • SOLVE</p>
+          <h1>GRID BOT <em>3D</em></h1>
+        </div>
+      </div>
+      <div class="auth-heading">
+        <span>PLAYER ACCESS</span>
+        <h2 id="auth-title">Return to the training grounds</h2>
+        <p id="auth-description">Sign in to sync progress and submit scores.</p>
+      </div>
+      <div class="auth-tabs" role="tablist" aria-label="Account mode">
+        <button id="login-tab" class="active" type="button" role="tab" aria-selected="true">Sign in</button>
+        <button id="register-tab" type="button" role="tab" aria-selected="false">Create account</button>
+      </div>
+      <form id="login-form" class="auth-form">
+        <label>
+          <span>Username or email</span>
+          <input name="login" type="text" autocomplete="username" required />
+        </label>
+        <label>
+          <span>Password</span>
+          <input name="password" type="password" autocomplete="current-password" minlength="8" required />
+        </label>
+        <button class="auth-submit" type="submit">
+          <span>Sign in</span>
+          <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#chevron-right"></use></svg>
+        </button>
+      </form>
+      <form id="register-form" class="auth-form" hidden>
+        <div class="auth-field-row">
+          <label>
+            <span>Username</span>
+            <input name="username" type="text" autocomplete="username" minlength="3" maxlength="32" required />
+          </label>
+          <label>
+            <span>Email</span>
+            <input name="email" type="email" autocomplete="email" required />
+          </label>
+        </div>
+        <label>
+          <span>Password</span>
+          <input id="register-password" name="password" type="password" autocomplete="new-password" minlength="12"
+            maxlength="128" aria-describedby="password-length-check password-strength-label" required />
+        </label>
+        <label>
+          <span>Confirm password</span>
+          <input id="register-confirm-password" name="confirmPassword" type="password" autocomplete="new-password"
+            minlength="12" maxlength="128" aria-describedby="password-match-check" required />
+        </label>
+        <div id="password-strength" class="password-strength" aria-live="polite">
+          <div class="password-strength-top">
+            <span>Password strength</span>
+            <strong id="password-strength-label">Use at least 12 characters</strong>
+          </div>
+          <div class="password-strength-track" aria-hidden="true">
+            <span id="password-strength-fill"></span>
+          </div>
+          <div class="password-check-list">
+            <span id="password-length-check" class="password-check">At least 12 characters</span>
+            <span id="password-match-check" class="password-check">Passwords must match</span>
+          </div>
+        </div>
+        <button class="auth-submit" type="submit">
+          <span>Create account and start playing</span>
+          <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#chevron-right"></use></svg>
+        </button>
+      </form>
+      <p id="auth-error" class="auth-error" role="alert" hidden></p>
+      <footer>
+        <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#shield-check"></use></svg>
+        Accounts and scores are stored securely on the server.
+      </footer>
+    </article>
+  </section>
+
+  <div id="confirm-dialog" class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirm-title"
+    hidden>
+    <div class="confirm-card">
+      <span class="confirm-icon" aria-hidden="true">
+        <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><use href="./assets/lucide-sprite.svg#rotate-ccw"></use></svg>
+      </span>
+      <h2 id="confirm-title">Start over?</h2>
+      <p>Stars and unlocked missions will be cleared on this device.</p>
+      <div>
+        <button id="cancel-reset-button" type="button">Cancel</button>
+        <button id="confirm-reset-button" type="button">Clear progress</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./menu.js"></script>
+</body>
+
+</html>

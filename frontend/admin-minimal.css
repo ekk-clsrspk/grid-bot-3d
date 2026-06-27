@@ -1,0 +1,653 @@
+:root {
+  color-scheme: light;
+  --bg: #f5f5f7;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-soft: #f5f5f7;
+  --line: #e5e5e7;
+  --line-strong: #d2d2d7;
+  --text: #1d1d1f;
+  --muted: #6e6e73;
+  --muted-strong: #3a3a3c;
+  --accent: #1d1d1f;
+  --accent-strong: #000000;
+  --accent-ink: #ffffff;
+  --danger: #b42318;
+  --warning: #1d1d1f;
+}
+
+body {
+  color: var(--text);
+  background: var(--bg);
+}
+
+.admin-sidebar {
+  border-color: var(--line);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(22px);
+}
+
+.admin-brand-mark {
+  border-radius: 10px;
+  background: #1d1d1f;
+  box-shadow: none;
+  transform: none;
+}
+
+.admin-brand-mark::before {
+  display: none;
+}
+
+.admin-brand-mark i {
+  background: #fff;
+  box-shadow: none;
+}
+
+.admin-brand small,
+.admin-account small {
+  color: #86868b;
+  letter-spacing: 0.06em;
+}
+
+.admin-nav {
+  margin-top: 38px;
+}
+
+.admin-nav button {
+  border-radius: 10px;
+  color: #6e6e73;
+  transition:
+    color 150ms ease,
+    background 150ms ease;
+}
+
+.admin-nav button:hover {
+  color: #1d1d1f;
+  background: #f5f5f7;
+  transform: none;
+}
+
+.admin-nav button.active {
+  color: #1d1d1f;
+  background: #eeeeef;
+  box-shadow: none;
+}
+
+.admin-nav button.active svg {
+  color: inherit;
+}
+
+.admin-account {
+  border-color: transparent;
+  border-radius: 14px;
+  background: #f5f5f7;
+}
+
+.admin-account-icon {
+  border-radius: 9px;
+  color: #1d1d1f;
+  background: #e5e5e7;
+}
+
+.admin-account button {
+  color: #86868b;
+}
+
+.admin-account button:hover {
+  color: #1d1d1f;
+  background: #e5e5e7;
+}
+
+.admin-header {
+  margin-bottom: 26px;
+}
+
+#view-kicker,
+.panel-heading span,
+.table-heading > div span,
+.detail-drawer header span,
+.modal-card header span,
+.route-section header span,
+.code-section header span {
+  display: none;
+}
+
+.admin-header h1 {
+  margin: 0 0 6px;
+  font-size: clamp(30px, 3.4vw, 42px);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.admin-header p {
+  color: #6e6e73;
+}
+
+.admin-search,
+.custom-filter > button {
+  border-color: #d2d2d7;
+  border-radius: 11px;
+  color: #6e6e73;
+  background: #fff;
+}
+
+.admin-search:focus-within {
+  border-color: #1d1d1f;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+}
+
+.admin-search input,
+.filter-popover input {
+  color: #1d1d1f;
+}
+
+.admin-search input::placeholder,
+.filter-popover input::placeholder {
+  color: #98989d;
+}
+
+.admin-search kbd {
+  border-color: #e5e5e7;
+  color: #86868b;
+  background: #f5f5f7;
+}
+
+.custom-filter > button:hover {
+  border-color: #b8b8bd;
+  background: #fff;
+}
+
+.filter-chevron {
+  color: #86868b;
+}
+
+.primary-action {
+  border: 0;
+  border-radius: 11px;
+  color: #fff;
+  background: #1d1d1f;
+  box-shadow: none;
+}
+
+.primary-action:hover {
+  background: #353537;
+  transform: none;
+}
+
+.filter-popover,
+.row-action-menu {
+  border-color: #d2d2d7;
+  border-radius: 14px;
+  color: #1d1d1f;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.12);
+}
+
+.filter-popover > label {
+  border-color: #e5e5e7;
+  color: #86868b;
+  background: #f5f5f7;
+}
+
+.filter-group-label,
+.filter-popover > p {
+  color: #86868b;
+}
+
+.filter-options button {
+  color: #3a3a3c;
+}
+
+.filter-options button:hover,
+.filter-options button.selected,
+.row-action-menu button:hover {
+  color: #1d1d1f;
+  background: #f0f0f2;
+}
+
+.filter-options button svg {
+  color: #1d1d1f;
+}
+
+.admin-view {
+  animation: none;
+}
+
+.metric-bento {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.metric-card,
+.metric-primary {
+  min-height: 142px;
+  padding: 20px;
+  border-color: #e5e5e7;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: none;
+}
+
+.metric-card::after,
+.metric-icon {
+  display: none;
+}
+
+.metric-card > span:nth-child(2) {
+  color: #6e6e73;
+  font-weight: 500;
+}
+
+.metric-card > strong {
+  margin: 10px 0 6px;
+  color: #1d1d1f;
+  font-weight: 600;
+}
+
+.metric-card > small {
+  color: #86868b;
+}
+
+.metric-card > small i {
+  background: #1d1d1f;
+  box-shadow: none;
+}
+
+.dashboard-grid {
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.admin-panel {
+  border-color: #e5e5e7;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: none;
+}
+
+.mission-pulse-panel,
+.recent-panel {
+  padding: 22px;
+}
+
+.panel-heading h2,
+.table-heading h2 {
+  margin: 0;
+  color: #1d1d1f;
+  font-size: 18px;
+}
+
+.panel-heading > small,
+.table-heading > span {
+  color: #86868b;
+}
+
+.panel-heading button {
+  color: #1d1d1f;
+  background: transparent;
+  font-weight: 600;
+}
+
+.mission-pulse article {
+  min-height: 88px;
+  border-color: #eeeeef;
+  border-radius: 14px;
+  background: #fafafa;
+}
+
+.pulse-ring {
+  background: conic-gradient(#1d1d1f var(--pulse), #e5e5e7 0);
+}
+
+.pulse-ring::before {
+  background: #fff;
+}
+
+.pulse-ring span,
+.mission-pulse strong {
+  color: #1d1d1f;
+}
+
+.mission-pulse small,
+.mission-pulse em {
+  color: #86868b;
+  letter-spacing: 0.04em;
+}
+
+.recent-list button {
+  border-radius: 10px;
+}
+
+.recent-list button:hover {
+  background: #f5f5f7;
+}
+
+.activity-route {
+  border: 1px solid #e5e5e7;
+  border-radius: 9px;
+  background: #fff;
+}
+
+.activity-route i {
+  background: #1d1d1f;
+}
+
+.recent-list strong {
+  color: #1d1d1f;
+}
+
+.recent-list small,
+.recent-list time,
+.panel-empty {
+  color: #86868b;
+}
+
+.table-heading {
+  border-color: #e5e5e7;
+}
+
+.data-table th {
+  color: #86868b;
+  letter-spacing: 0.04em;
+}
+
+.data-table td {
+  border-color: #eeeeef;
+  color: #3a3a3c;
+}
+
+.data-table tbody tr:hover {
+  background: #fafafa;
+}
+
+.table-avatar {
+  border: 0;
+  border-radius: 9px;
+  color: #1d1d1f;
+  background: #eeeeef;
+}
+
+.user-cell strong,
+.drawer-user strong,
+.mission-cell strong,
+.result-cell strong {
+  color: #1d1d1f;
+}
+
+.user-cell small,
+.drawer-user small,
+.mission-cell small,
+.center-cell,
+.date-cell {
+  color: #86868b !important;
+}
+
+.status-chip {
+  color: #3a3a3c;
+  background: #eeeeef;
+}
+
+.status-chip i {
+  background: #6e6e73;
+}
+
+.status-chip.active,
+.status-chip.suspended {
+  color: #3a3a3c;
+  background: #eeeeef;
+}
+
+.status-chip.active i {
+  background: #1d1d1f;
+}
+
+.status-chip.suspended i {
+  background: #86868b;
+}
+
+.star-total,
+.result-cell small,
+.result-cell i {
+  color: #1d1d1f;
+}
+
+.result-cell i.empty {
+  color: #d2d2d7;
+}
+
+.row-menu-button,
+.row-open-button {
+  color: #86868b;
+}
+
+.row-menu-button:hover,
+.row-open-button:hover {
+  color: #1d1d1f;
+  background: #eeeeef;
+}
+
+.row-action-menu button {
+  color: #3a3a3c;
+}
+
+.row-action-menu button.danger {
+  color: #b42318;
+}
+
+.empty-state {
+  color: #86868b;
+}
+
+.empty-state strong {
+  color: #3a3a3c;
+}
+
+.drawer-scrim,
+.modal-scrim {
+  background: rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(5px);
+}
+
+.detail-drawer > section,
+.modal-card {
+  border-color: #d2d2d7;
+  color: #1d1d1f;
+  background: #fff;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.16);
+}
+
+.detail-drawer > section {
+  border-radius: 22px;
+}
+
+.detail-drawer > section > header,
+.modal-card > header {
+  border-color: #e5e5e7;
+}
+
+.detail-drawer h2,
+.modal-card h2 {
+  margin: 0;
+  color: #1d1d1f;
+}
+
+.detail-drawer header button,
+.modal-card header button {
+  color: #6e6e73;
+  background: #f0f0f2;
+}
+
+.drawer-date,
+.drawer-metrics span,
+.drawer-metrics small,
+.route-legend,
+.route-unavailable {
+  color: #86868b;
+}
+
+.drawer-metrics > div,
+.route-section,
+.code-section {
+  border-color: #e5e5e7;
+  border-radius: 14px;
+  background: #fafafa;
+}
+
+.drawer-metrics strong,
+.route-section header strong,
+.code-section header strong {
+  color: #1d1d1f;
+}
+
+.route-grid {
+  border-color: #d2d2d7;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.route-cell {
+  border-color: #eeeeef;
+}
+
+.route-cell.wall {
+  background: #d2d2d7;
+  box-shadow: none;
+}
+
+.route-cell.start::after {
+  background: #1d1d1f;
+  box-shadow: none;
+}
+
+.route-cell.goal::after {
+  background: #86868b;
+  box-shadow: none;
+}
+
+.route-map polyline {
+  stroke: #1d1d1f;
+  filter: none;
+}
+
+.route-map circle {
+  fill: #1d1d1f;
+  stroke: #fff;
+}
+
+.route-legend .start {
+  background: #1d1d1f;
+}
+
+.route-legend .goal {
+  background: #86868b;
+}
+
+.route-legend .wall {
+  background: #d2d2d7;
+}
+
+.code-section header button {
+  color: #3a3a3c;
+  background: #eeeeef;
+}
+
+.code-section pre {
+  color: #f5f5f7;
+  background: #1d1d1f;
+}
+
+.modal-card input {
+  border-color: #d2d2d7;
+  color: #1d1d1f;
+  background: #fff;
+}
+
+.modal-card input:focus {
+  border-color: #1d1d1f;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+}
+
+.modal-card form > label > span,
+.modal-card.compact > p {
+  color: #6e6e73;
+}
+
+.status-segment {
+  border: 0;
+  background: #f0f0f2;
+}
+
+.status-segment button {
+  color: #6e6e73;
+}
+
+.status-segment button.active {
+  color: #1d1d1f;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.modal-card footer button {
+  color: #3a3a3c;
+  background: #eeeeef;
+}
+
+.modal-card footer button:last-child {
+  color: #fff;
+  background: #1d1d1f;
+}
+
+.modal-card footer button.danger-action {
+  color: #fff;
+  background: #b42318;
+}
+
+.form-error {
+  border-color: #f0c7c7;
+  color: #9f2020;
+  background: #fff5f5;
+}
+
+.admin-toast {
+  border-color: #3a3a3c;
+  color: #fff;
+  background: #1d1d1f;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
+}
+
+.admin-toast svg {
+  color: #fff;
+}
+
+.admin-toast.error {
+  border-color: #b42318;
+  color: #fff;
+  background: #b42318;
+}
+
+@media (max-width: 1120px) {
+  .metric-bento {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .admin-sidebar {
+    border-color: #d2d2d7;
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
+  }
+
+  .metric-bento,
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .metric-bento {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+

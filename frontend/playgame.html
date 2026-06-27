@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Play Grid Bot 3D missions with up, down, left, and right commands." />
+  <title>Grid Bot 3D Challenge — Gameplay</title>
+  <link rel="stylesheet" href="./fonts.css" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.184.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+
+<body>
+  <main id="game-screen" class="app-shell">
+    <section class="scene-panel" aria-label="3D game board">
+      <div id="scene" class="scene"></div>
+
+      <header class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" focusable="false">
+            <use href="./assets/lucide-sprite.svg#bot"></use>
+          </svg>
+        </div>
+        <div>
+          <p class="eyebrow">CODE • MOVE • SOLVE</p>
+          <h1>GRID BOT <span>3D</span></h1>
+        </div>
+      </header>
+
+      <div id="scene-menu-cluster" class="scene-menu-cluster">
+        <a id="menu-button" class="scene-menu-button" href="./index.html">
+          <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <use href="./assets/lucide-sprite.svg#chevron-left"></use>
+          </svg>
+          Missions
+        </a>
+        <div id="mission-info-hub" class="mission-info-hub">
+          <button id="mission-info-button" class="mission-info-button" type="button" aria-label="Show mission info"
+            aria-expanded="false" aria-controls="mission-popover">
+            <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <use href="./assets/lucide-sprite.svg#info"></use>
+            </svg>
+          </button>
+          <section id="mission-popover" class="mission-popover" aria-label="Current mission info">
+            <div class="mission-popover-header">
+              <div>
+                <span class="window-dot mission-dot"></span>
+                <strong>MISSION INFO</strong>
+              </div>
+            </div>
+            <div class="mission-window-content mission-popover-content">
+              <div class="mission-window-title">
+                <span id="mission-window-number">01</span>
+                <div>
+                  <small>ACTIVE MISSION</small>
+                  <h2 id="mission-window-name">BOOT SEQUENCE</h2>
+                </div>
+              </div>
+              <p id="mission-description">Slip around the first barrier line and guide the bot to the opposite corner.
+              </p>
+              <div class="mission-window-meta">
+                <div><span>GRID</span><strong id="grid-size">5 × 5</strong></div>
+                <div><span>PAR</span><strong id="par-score">8 STEPS</strong></div>
+                <div><span>DIFFICULTY</span><strong id="mission-difficulty"><svg class="lucide-icon icon-fill"
+                      viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                      <use href="./assets/lucide-sprite.svg#star"></use>
+                    </svg><svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                      focusable="false">
+                      <use href="./assets/lucide-sprite.svg#star"></use>
+                    </svg><svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                      focusable="false">
+                      <use href="./assets/lucide-sprite.svg#star"></use>
+                    </svg></strong></div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div class="scene-stats" aria-live="polite">
+        <div class="stat">
+          <span class="stat-label">MISSION</span>
+          <strong id="mission-number">01</strong>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-label">STEPS</span>
+          <strong><span id="step-count">0</span><small id="step-target">/ 8</small></strong>
+        </div>
+      </div>
+
+      <div class="camera-hint">
+        <span class="mouse-icon" aria-hidden="true">
+          <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" focusable="false">
+            <use href="./assets/lucide-sprite.svg#mouse"></use>
+          </svg>
+        </span>
+        Drag to rotate • Scroll to zoom
+      </div>
+
+      <aside class="direction-guide" aria-label="Board command directions">
+        <span class="direction-guide-title">BOARD DIRECTIONS</span>
+        <div id="direction-axis" class="direction-axis" aria-hidden="true">
+          <div class="direction-point direction-up">
+            <span class="direction-point-content"><svg class="lucide-icon" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                <use href="./assets/lucide-sprite.svg#arrow-up"></use>
+              </svg><small>UP</small></span>
+          </div>
+          <div class="direction-point direction-right">
+            <span class="direction-point-content"><svg class="lucide-icon" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                <use href="./assets/lucide-sprite.svg#arrow-right"></use>
+              </svg><small>RIGHT</small></span>
+          </div>
+          <div class="direction-point direction-down">
+            <span class="direction-point-content"><svg class="lucide-icon" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                <use href="./assets/lucide-sprite.svg#arrow-down"></use>
+              </svg><small>DOWN</small></span>
+          </div>
+          <div class="direction-point direction-left">
+            <span class="direction-point-content"><svg class="lucide-icon" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                <use href="./assets/lucide-sprite.svg#arrow-left"></use>
+              </svg><small>LEFT</small></span>
+          </div>
+          <span class="direction-bot" aria-label="Robot">
+            <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <use href="./assets/lucide-sprite.svg#bot"></use>
+            </svg>
+          </span>
+        </div>
+        <button id="reset-angle-button" class="reset-angle-button" type="button">
+          <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <use href="./assets/lucide-sprite.svg#rotate-ccw"></use>
+          </svg>
+          RESET ANGLE
+        </button>
+      </aside>
+
+      <div id="toast" class="toast" role="status" aria-live="polite">
+        <span id="toast-icon"><svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <use href="./assets/lucide-sprite.svg#info"></use>
+          </svg></span>
+        <div>
+          <strong id="toast-title">Mission ready</strong>
+          <p id="toast-message">Write commands and press RUN</p>
+        </div>
+      </div>
+
+      <div id="mission-transition" class="mission-transition" aria-hidden="true">
+        <span>Changing mission</span>
+        <strong id="mission-transition-label">MISSION 02</strong>
+      </div>
+    </section>
+
+    <div id="floating-ui" class="floating-ui">
+      <section id="command-window" class="floating-window command-window" style="--x: calc(100vw - 422px); --y: 34px">
+        <header class="window-titlebar" data-drag-handle>
+          <div>
+            <span class="window-dot command-dot"></span>
+            <strong>COMMAND CONSOLE</strong>
+            <span class="online-dot">ONLINE</span>
+          </div>
+          <button class="window-minimize" type="button" aria-label="Minimize command window">
+            <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <use href="./assets/lucide-sprite.svg#minus"></use>
+            </svg>
+          </button>
+        </header>
+        <div class="window-content command-window-content">
+          <section class="command-block">
+            <div class="section-heading">
+              <div>
+                <span class="section-number">01</span>
+                <h2>Write commands</h2>
+              </div>
+            </div>
+
+            <div class="command-reference" aria-label="Available commands">
+              <span><kbd><svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                    <use href="./assets/lucide-sprite.svg#arrow-up"></use>
+                  </svg></kbd> up</span>
+              <span><kbd><svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                    <use href="./assets/lucide-sprite.svg#arrow-down"></use>
+                  </svg></kbd> down</span>
+              <span><kbd><svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                    <use href="./assets/lucide-sprite.svg#arrow-left"></use>
+                  </svg></kbd> left</span>
+              <span><kbd><svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                    <use href="./assets/lucide-sprite.svg#arrow-right"></use>
+                  </svg></kbd> right</span>
+            </div>
+
+            <div class="editor-shell">
+              <div class="editor-bar">
+                <span><i></i><i></i><i></i></span>
+                <span>route.bot</span>
+                <span id="line-count">1 LINE</span>
+              </div>
+              <textarea id="command-input" aria-label="Type movement commands" autocomplete="off" autocapitalize="off"
+                spellcheck="false" placeholder="Type commands here..."></textarea>
+            </div>
+            <p class="syntax-hint">
+              Enter one command per line, or use <code>repeat 4:</code> followed by a command.
+            </p>
+          </section>
+
+          <section class="run-block">
+            <div class="section-heading compact">
+              <div>
+                <span class="section-number">02</span>
+                <h2>Test route</h2>
+              </div>
+              <span id="status-pill" class="status-pill">READY</span>
+            </div>
+
+            <div class="button-row">
+              <button id="run-button" class="run-button" type="button">
+                <span class="play-icon" aria-hidden="true">
+                  <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                    <use href="./assets/lucide-sprite.svg#play"></use>
+                  </svg>
+                </span>
+                RUN PROGRAM
+                <kbd><svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                    <use href="./assets/lucide-sprite.svg#command"></use>
+                  </svg><svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                    <use href="./assets/lucide-sprite.svg#corner-down-left"></use>
+                  </svg></kbd>
+              </button>
+              <button id="submit-button" class="submit-button" type="button" disabled>
+                <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                  <use href="./assets/lucide-sprite.svg#check"></use>
+                </svg>
+                SUBMIT
+              </button>
+              <button id="reset-button" class="reset-button" type="button" aria-label="Reset">
+                <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                  <use href="./assets/lucide-sprite.svg#rotate-ccw"></use>
+                </svg>
+              </button>
+            </div>
+          </section>
+
+          <nav id="mission-navigation" class="mission-navigation" aria-label="Mission navigation" hidden>
+            <button id="previous-mission-button" class="mission-nav-button previous" type="button">
+              <span aria-hidden="true"><svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                  <use href="./assets/lucide-sprite.svg#arrow-left"></use>
+                </svg></span>
+              <span>
+                <small>Previous mission</small>
+                <strong id="previous-mission-label">MISSION 01</strong>
+              </span>
+            </button>
+            <button id="next-mission-button" class="mission-nav-button next" type="button">
+              <span>
+                <small>Next mission</small>
+                <strong id="next-mission-label">MISSION 02</strong>
+              </span>
+              <span aria-hidden="true"><svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                  <use href="./assets/lucide-sprite.svg#arrow-right"></use>
+                </svg></span>
+            </button>
+          </nav>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div id="anti-cheat-badge" class="anti-cheat-badge" aria-live="polite">anticheat is running</div>
+
+  <div id="anti-cheat-overlay" class="anti-cheat-overlay" role="alertdialog" aria-modal="true" aria-live="assertive"
+    hidden>
+    <div class="anti-cheat-panel">
+      <span class="anti-cheat-kicker">Security</span>
+      <strong id="anti-cheat-title"></strong>
+      <p id="anti-cheat-message">Focus was lost. Return to the challenge window and resume to continue.</p>
+      <button id="anti-cheat-resume" class="anti-cheat-resume" type="button">Resume</button>
+    </div>
+  </div>
+
+  <div id="loading-screen" class="loading-screen">
+    <div class="loader-robot" aria-hidden="true">
+      <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" focusable="false">
+        <use href="./assets/lucide-sprite.svg#bot"></use>
+      </svg>
+    </div>
+    <p>Assembling robot...</p>
+    <div class="loading-track"><span id="loading-progress"></span></div>
+    <small id="loading-label">LOADING 3D ASSETS</small>
+  </div>
+
+  <script type="module" src="./game.js"></script>
+</body>
+
+</html>
