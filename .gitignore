@@ -25,3 +25,8 @@ backend/data/
 
 # Scratch files
 .tmp
+
+# Local-only project folders
+/presentation/
+/professor/
+/tools/
