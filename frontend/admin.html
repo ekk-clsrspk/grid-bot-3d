@@ -34,6 +34,10 @@
           <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#code-xml"></use></svg>
           <span>Submissions</span>
         </button>
+        <button type="button" data-view="stages">
+          <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#map"></use></svg>
+          <span>Stages</span>
+        </button>
       </nav>
 
       <div class="admin-account">
@@ -169,6 +173,32 @@
             <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#code-xml"></use></svg>
             <strong>No submissions found</strong><span>Try a different search or filter.</span>
           </div>
+      </section>
+
+      <section id="stages-view" class="admin-view" hidden>
+        <article class="admin-panel table-panel">
+          <header class="table-heading">
+            <div><span>GAME CONTENT</span><h2>Missions & Stages</h2></div>
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <span id="stages-count">0 items</span>
+              <button id="create-stage-button" class="btn-create-stage" type="button" style="display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 12px; background: var(--accent); color: var(--accent-ink); font-weight: 600; cursor: pointer;">
+                <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="width: 14px; height: 14px;"><use href="./assets/lucide-sprite.svg#plus"></use></svg>
+                Create Stage
+              </button>
+            </div>
+          </header>
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr><th>Number</th><th>ID</th><th>Name</th><th>Size</th><th>Start</th><th>Goal</th><th>Par</th><th>Difficulty</th><th>Obstacles</th><th></th></tr>
+              </thead>
+              <tbody id="stages-table-body"></tbody>
+            </table>
+          </div>
+          <div id="stages-empty" class="empty-state" hidden>
+            <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#map"></use></svg>
+            <strong>No stages found</strong><span>Create a new stage to begin.</span>
+          </div>
         </article>
       </section>
     </main>
@@ -217,6 +247,65 @@
     </section>
   </div>
 
+  <div id="stage-modal" class="admin-modal" role="dialog" aria-modal="true" aria-labelledby="stage-modal-title" hidden>
+    <div class="modal-scrim" data-close-stage-modal></div>
+    <section class="modal-card wide">
+      <header>
+        <div><span>STAGE BUILDER</span><h2 id="stage-modal-title">Create game stage</h2></div>
+        <button type="button" data-close-stage-modal aria-label="Close">
+          <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><use href="./assets/lucide-sprite.svg#x"></use></svg>
+        </button>
+      </header>
+      <form id="stage-form" class="stage-builder-layout">
+        <div class="stage-builder-fields">
+          <input id="stage-form-is-edit" type="hidden" value="false" />
+          <label><span>Stage ID (slug, lowercase alphanumeric/dash/underscore)</span><input id="stage-id" name="id" type="text" minlength="3" maxlength="32" required placeholder="warmup" /></label>
+          <label><span>Stage Number (e.g. '01', '02')</span><input id="stage-number" name="number" type="text" required placeholder="01" /></label>
+          <label><span>Name</span><input id="stage-name" name="name" type="text" minlength="3" maxlength="64" required placeholder="BOOT SEQUENCE" /></label>
+          <label><span>Subtitle</span><input id="stage-subtitle" name="subtitle" type="text" maxlength="64" placeholder="Opening Route" /></label>
+          <label><span>Description</span><input id="stage-description" name="description" type="text" placeholder="Weave through energy barrier lines..." /></label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <label><span>Grid Size (3-20)</span><input id="stage-size" name="size" type="number" min="3" max="20" required value="5" /></label>
+            <label><span>Par Steps</span><input id="stage-par" name="par" type="number" min="1" required value="8" /></label>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <label><span>Difficulty (Stars 1-3)</span><input id="stage-difficulty" name="difficulty" type="number" min="1" max="3" required value="1" /></label>
+            <label><span>Brush Tool</span>
+              <div class="brush-selector status-segment" style="grid-template-columns: repeat(3, 1fr); margin-top: 0; height: 45px;">
+                <button class="active" type="button" data-brush="obstacle" style="font-size: 11px;">Block</button>
+                <button type="button" data-brush="start" style="font-size: 11px;">Start</button>
+                <button type="button" data-brush="goal" style="font-size: 11px;">Goal</button>
+              </div>
+            </label>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px;">
+            <div><span style="font-size: 12px; color: var(--muted);">Start Coordinate:</span> <strong id="stage-start-label">[0, 0]</strong></div>
+            <div><span style="font-size: 12px; color: var(--muted);">Goal Coordinate:</span> <strong id="stage-goal-label">[4, 4]</strong></div>
+          </div>
+          <div style="margin-top: 8px; display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 12px; color: var(--muted);">Path Status:</span>
+            <span id="stage-passable-badge" style="font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; text-transform: uppercase;">Checking...</span>
+          </div>
+          <p id="stage-form-error" class="form-error" role="alert" hidden></p>
+          <footer style="margin-top: 15px; display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--line); padding-top: 14px;">
+            <button type="button" data-close-stage-modal style="background: rgba(215, 230, 226, 0.05); padding: 8px 16px; border-radius: 12px; color: var(--text); font-weight: 500; cursor: pointer;">Cancel</button>
+            <button id="save-stage-button" type="submit" style="background: var(--accent); color: var(--accent-ink); padding: 8px 16px; border-radius: 12px; font-weight: 600; cursor: pointer;">Save stage</button>
+          </footer>
+        </div>
+        <div class="stage-builder-editor" style="display: flex; flex-direction: column;">
+          <span style="display: block; margin-bottom: 8px; color: #99a6a3; font-size: 13px; font-weight: 600; text-align: center;">2D GRID EDITOR (CLICK & DRAG)</span>
+          <div class="grid-builder-container">
+            <div id="grid-builder-canvas" class="grid-builder-canvas"></div>
+            <button type="button" id="grid-clear-btn" class="grid-builder-tool-btn" style="margin-top: 8px; display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; background: rgba(215, 230, 226, 0.05); color: var(--text); cursor: pointer; font-size: 12px;">
+              <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="width: 14px; height: 14px;"><use href="./assets/lucide-sprite.svg#rotate-ccw"></use></svg>
+              Reset obstacles
+            </button>
+          </div>
+        </div>
+      </form>
+    </section>
+  </div>
+
   <div id="delete-modal" class="admin-modal" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title" hidden>
     <div class="modal-scrim" data-close-delete></div>
     <section class="modal-card compact">
@@ -234,6 +323,28 @@
   <div id="admin-toast" class="admin-toast" role="status" aria-live="polite" hidden>
     <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="./assets/lucide-sprite.svg#check"></use></svg>
     <span id="admin-toast-copy">Saved</span>
+  </div>
+
+  <div id="sync-bar" class="sync-bar"></div>
+
+  <div class="mobile-profile" id="mobile-profile">
+    <button class="mobile-profile-trigger" id="mobile-profile-trigger" aria-expanded="false" aria-label="Toggle profile menu">
+      <span class="mobile-profile-avatar">
+        <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><use href="./assets/lucide-sprite.svg#user-round"></use></svg>
+      </span>
+      <span class="mobile-profile-username" id="mobile-profile-username">Admin</span>
+      <svg class="lucide-icon chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><use href="./assets/lucide-sprite.svg#chevron-down"></use></svg>
+    </button>
+    <div class="mobile-profile-dropdown" id="mobile-profile-dropdown" hidden>
+      <div class="mobile-profile-dropdown-info">
+        <strong id="mobile-profile-menu-name">Admin</strong>
+        <small>ADMINISTRATOR</small>
+      </div>
+      <button id="mobile-profile-logout" type="button">
+        <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><use href="./assets/lucide-sprite.svg#log-out"></use></svg>
+        <span>Sign out</span>
+      </button>
+    </div>
   </div>
 
   <script type="module" src="./admin.js"></script>

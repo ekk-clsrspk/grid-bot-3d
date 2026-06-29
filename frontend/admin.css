@@ -1692,13 +1692,14 @@ svg {
     position: fixed;
     top: auto;
     right: 12px;
-    bottom: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
     left: 12px;
     z-index: 80;
-    display: grid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: auto;
     height: 64px;
-    grid-template-columns: auto 1fr auto;
     padding: 8px;
     border: 1px solid var(--line-strong);
     border-radius: 20px;
@@ -1706,24 +1707,21 @@ svg {
     box-shadow: 0 18px 50px rgba(0, 0, 0, 0.34);
   }
 
-  .admin-brand-mark {
-    width: 42px;
-    height: 42px;
+  .admin-brand,
+  .admin-account {
+    display: none !important;
   }
 
   .admin-nav {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 4px;
-    margin: 0;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin: 0 !important;
+    width: 100%;
   }
 
   .admin-nav button {
     min-height: 46px;
-  }
-
-  .admin-account {
-    margin: 0;
   }
 
   .admin-main {
@@ -1764,12 +1762,448 @@ svg {
     grid-template-columns: 1fr;
   }
 
-  .data-table {
-    min-width: 760px;
+  /* Mobile Profile (Google M3-inspired layout at top-right) */
+  .mobile-profile {
+    display: block;
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 100;
   }
 
+  .mobile-profile-trigger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 40px;
+    padding: 4px 12px 4px 6px;
+    border: 1px solid var(--line-strong);
+    border-radius: 20px;
+    background: var(--surface-raised);
+    color: var(--text);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 150ms ease, box-shadow 150ms ease;
+  }
+
+  .mobile-profile-trigger:hover,
+  .mobile-profile-trigger:focus {
+    background: var(--surface-soft);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+  }
+
+  .mobile-profile-avatar {
+    display: grid;
+    width: 30px;
+    height: 30px;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(157, 189, 181, 0.2);
+    color: var(--accent);
+  }
+
+  .mobile-profile-avatar svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .mobile-profile-trigger .chevron {
+    width: 16px;
+    height: 16px;
+    color: var(--muted);
+    transition: transform 150ms ease;
+  }
+
+  .mobile-profile-trigger[aria-expanded="true"] .chevron {
+    transform: rotate(180deg);
+  }
+
+  .mobile-profile-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    width: 200px;
+    border: 1px solid var(--line-strong);
+    border-radius: 16px;
+    background: var(--surface-raised);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.26);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transform-origin: top right;
+    animation: menu-in 150ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .mobile-profile-dropdown[hidden] {
+    display: none;
+  }
+
+  .mobile-profile-dropdown-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-inline: 8px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 8px;
+  }
+
+  .mobile-profile-dropdown-info strong {
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  .mobile-profile-dropdown-info small {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  .mobile-profile-dropdown button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 38px;
+    border-radius: 10px;
+    background: rgba(216, 138, 152, 0.1);
+    color: var(--danger);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 150ms ease;
+    border: none;
+    width: 100%;
+  }
+
+  .mobile-profile-dropdown button:hover {
+    background: rgba(216, 138, 152, 0.18);
+  }
+
+  /* Responsive Bento Box Table layout (Google M3 cards style) */
   .data-table-wrap {
-    overflow-x: auto;
+    overflow-x: visible;
+  }
+
+  .data-table {
+    min-width: 100% !important;
+    background: transparent !important;
+    border: none !important;
+    display: block;
+  }
+
+  .data-table thead {
+    display: none;
+  }
+
+  .data-table tbody {
+    display: block;
+    width: 100%;
+    background: transparent !important;
+  }
+
+  .data-table tbody tr {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--surface-raised);
+    border: 1px solid var(--line-strong);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  .data-table tbody tr:hover {
+    background: var(--surface-soft);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .data-table td {
+    display: block;
+    width: 100% !important;
+    height: auto !important;
+    padding: 0 !important;
+    border: none !important;
+    box-sizing: border-box;
+  }
+
+  /* --- Players Bento Details --- */
+  #users-table-body tr {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  #users-table-body td:nth-child(6) {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: auto !important;
+  }
+
+  #users-table-body td:nth-child(3),
+  #users-table-body td:nth-child(4) {
+    display: inline-block;
+    width: calc(50% - 6px) !important;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px !important;
+    text-align: center;
+    vertical-align: top;
+  }
+
+  #users-table-body td:nth-child(3) {
+    margin-right: 12px;
+  }
+
+  #users-table-body td:nth-child(3)::before {
+    content: "Submissions";
+    display: block;
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  #users-table-body td:nth-child(4)::before {
+    content: "Best Stars";
+    display: block;
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  #users-table-body td:nth-child(5) {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: right;
+    margin-top: -4px;
+  }
+
+  /* --- Submissions Bento Details --- */
+  #submissions-table-body tr {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  #submissions-table-body td:nth-child(6) {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: auto !important;
+  }
+
+  #submissions-table-body td:nth-child(2) {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px !important;
+  }
+
+  #submissions-table-body td:nth-child(3),
+  #submissions-table-body td:nth-child(4) {
+    display: inline-block;
+    width: calc(50% - 6px) !important;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px !important;
+    text-align: center;
+    vertical-align: top;
+  }
+
+  #submissions-table-body td:nth-child(3) {
+    margin-right: 12px;
+  }
+
+  #submissions-table-body td:nth-child(3)::before {
+    content: "Result";
+    display: block;
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  #submissions-table-body td:nth-child(4)::before {
+    content: "Duration";
+    display: block;
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  #submissions-table-body td:nth-child(5) {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: right;
+    margin-top: -4px;
+  }
+
+  /* --- Stages Bento Details --- */
+  #stages-table-body tr {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  #stages-table-body td:nth-child(3) {
+    grid-column: 1 / -1;
+    margin-bottom: 4px;
+  }
+
+  #stages-table-body td:nth-child(3) strong {
+    font-size: 16px;
+    color: var(--text);
+  }
+
+  #stages-table-body td:nth-child(10) {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    gap: 8px;
+    width: auto !important;
+  }
+
+  #stages-table-body td:nth-child(2) {
+    grid-column: 1 / -1;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  #stages-table-body td:nth-child(2) code {
+    background: rgba(215, 230, 226, 0.05);
+    padding: 2px 6px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+  }
+
+  #stages-table-body td:nth-child(1) {
+    position: absolute;
+    top: -8px;
+    left: 12px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    width: auto !important;
+  }
+
+  #stages-table-body td:nth-child(8),
+  #stages-table-body td:nth-child(7) {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px !important;
+    text-align: center;
+  }
+
+  #stages-table-body td:nth-child(8)::before {
+    content: "Difficulty";
+    display: block;
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  #stages-table-body td:nth-child(7)::before {
+    content: "Par Steps";
+    display: block;
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  #stages-table-body td:nth-child(4),
+  #stages-table-body td:nth-child(9) {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px !important;
+    text-align: center;
+  }
+
+  #stages-table-body td:nth-child(4)::before {
+    content: "Grid Size";
+    display: block;
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  #stages-table-body td:nth-child(9)::before {
+    content: "Obstacles";
+    display: block;
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  #stages-table-body td:nth-child(5),
+  #stages-table-body td:nth-child(6) {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px !important;
+    text-align: center;
+  }
+
+  #stages-table-body td:nth-child(5)::before {
+    content: "Start Coord";
+    display: block;
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  #stages-table-body td:nth-child(6)::before {
+    content: "Goal Coord";
+    display: block;
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   .detail-drawer > section {
@@ -1857,3 +2291,170 @@ svg {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Stage Builder Styles */
+.modal-card.wide {
+  width: min(850px, 100vw - 24px);
+}
+
+.stage-builder-layout {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 24px;
+  padding: 20px 22px 22px;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .stage-builder-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stage-builder-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stage-builder-fields label {
+  display: grid;
+  gap: 6px;
+}
+
+.stage-builder-fields label span {
+  color: #99a6a3;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.stage-builder-fields input {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  outline: 0;
+  color: var(--text);
+  background: rgba(8, 13, 14, 0.25);
+  font-size: 14px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.stage-builder-fields input:focus {
+  border-color: rgba(157, 189, 181, 0.32);
+  box-shadow: 0 0 0 4px rgba(157, 189, 181, 0.05);
+}
+
+.brush-selector button.active {
+  background: var(--accent) !important;
+  color: var(--accent-ink) !important;
+  font-weight: 600;
+}
+
+.grid-builder-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.grid-builder-canvas {
+  display: grid;
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 320px;
+  background: #0d1213;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 16px;
+  padding: 8px;
+  gap: 3px;
+  user-select: none;
+  grid-auto-rows: 1fr;
+}
+
+.grid-builder-cell {
+  background: rgba(215, 230, 226, 0.08);
+  border: 1.5px solid rgba(215, 230, 226, 0.16);
+  border-radius: 3px;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
+  transition: all 0.1s ease;
+}
+
+.grid-builder-cell:hover {
+  background: rgba(215, 230, 226, 0.2);
+  border-color: var(--accent);
+}
+
+.grid-builder-cell.cell-obstacle {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #101516;
+  box-shadow: 0 0 8px rgba(216, 138, 152, 0.25);
+}
+
+.grid-builder-cell.cell-start {
+  background: #5db075;
+  border-color: #5db075;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(93, 176, 117, 0.35);
+}
+
+.grid-builder-cell.cell-goal {
+  background: #3f90db;
+  border-color: #3f90db;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(63, 144, 219, 0.35);
+}
+
+.grid-builder-tool-btn {
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.grid-builder-tool-btn:hover {
+  background: rgba(215, 230, 226, 0.1) !important;
+}
+
+/* Synchronization progress bar */
+.sync-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #007aff, #38bdf8, #007aff);
+  background-size: 200% 100%;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.sync-bar.syncing {
+  opacity: 1;
+  transform: scaleX(1);
+  animation: shimmer 1.5s infinite linear;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.mobile-profile {
+  display: none;
+}
+

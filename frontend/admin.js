@@ -1,28 +1,23 @@
 import { apiRequest, requireAdmin, signOut } from "./api.js";
-import { missions } from "./missions.js";
+import { missions, initMissions } from "./missions.js";
 import { spriteIcon } from "./icons.js";
 
-const missionById = new Map(missions.map((mission) => [mission.id, mission]));
+let missionById = new Map();
 const viewCopy = {
   dashboard: ["CONTROL ROOM / OVERVIEW", "Live system status", "Track player accounts and mission results from one place."],
   users: ["CONTROL ROOM / PLAYERS", "Manage player accounts", "Create, edit, suspend, and review player activity."],
   submissions: ["CONTROL ROOM / SUBMISSIONS", "Validated runs", "Review time, code, and verified routes from the server."],
+  stages: ["CONTROL ROOM / STAGES", "Game levels and maps", "Create, edit, delete, and visual design of levels."],
 };
-const filterGroups = {
+let filterGroups = {
   dashboard: [{ value: "all", label: "Everything", group: "Overview" }],
   users: [
     { value: "all", label: "All statuses", group: "Account status" },
     { value: "active", label: "Active", group: "Account status" },
     { value: "suspended", label: "Suspended", group: "Account status" },
   ],
-  submissions: [
-    { value: "all", label: "All missions", group: "Mission" },
-    ...missions.map((mission) => ({
-      value: mission.id,
-      label: `Mission ${mission.number} — ${mission.name}`,
-      group: "Mission",
-    })),
-  ],
+  submissions: [],
+  stages: [{ value: "all", label: "All stages", group: "Stage" }],
 };
 
 const dom = {
@@ -34,6 +29,7 @@ const dom = {
     dashboard: document.querySelector("#dashboard-view"),
     users: document.querySelector("#users-view"),
     submissions: document.querySelector("#submissions-view"),
+    stages: document.querySelector("#stages-view"),
   },
   adminName: document.querySelector("#admin-name"),
   adminLogout: document.querySelector("#admin-logout"),
@@ -75,6 +71,31 @@ const dom = {
   confirmDeleteButton: document.querySelector("#confirm-delete-button"),
   toast: document.querySelector("#admin-toast"),
   toastCopy: document.querySelector("#admin-toast-copy"),
+
+  // Stage builder bindings
+  stagesTableBody: document.querySelector("#stages-table-body"),
+  stagesCount: document.querySelector("#stages-count"),
+  stagesEmpty: document.querySelector("#stages-empty"),
+  stageModal: document.querySelector("#stage-modal"),
+  stageModalTitle: document.querySelector("#stage-modal-title"),
+  stageForm: document.querySelector("#stage-form"),
+  stageFormIsEdit: document.querySelector("#stage-form-is-edit"),
+  stageIdField: document.querySelector("#stage-id"),
+  stageNumberField: document.querySelector("#stage-number"),
+  stageNameField: document.querySelector("#stage-name"),
+  stageSubtitleField: document.querySelector("#stage-subtitle"),
+  stageDescriptionField: document.querySelector("#stage-description"),
+  stageSizeField: document.querySelector("#stage-size"),
+  stageParField: document.querySelector("#stage-par"),
+  stageDifficultyField: document.querySelector("#stage-difficulty"),
+  stageStartLabel: document.querySelector("#stage-start-label"),
+  stageGoalLabel: document.querySelector("#stage-goal-label"),
+  stagePassableBadge: document.querySelector("#stage-passable-badge"),
+  stageFormError: document.querySelector("#stage-form-error"),
+  saveStageButton: document.querySelector("#save-stage-button"),
+  gridBuilderCanvas: document.querySelector("#grid-builder-canvas"),
+  gridClearBtn: document.querySelector("#grid-clear-btn"),
+  brushButtons: document.querySelectorAll("[data-brush]"),
 };
 
 let currentView = "dashboard";
@@ -82,16 +103,90 @@ let selectedFilter = "all";
 let overview = null;
 let users = [];
 let submissions = [];
+let stages = [];
+
+// Stage builder state
+let builderObstacles = new Set();
+let builderStart = [0, 0];
+let builderGoal = [4, 4];
+let builderBrush = "obstacle";
+let isDrawing = false;
+let drawMode = true;
+let editingStage = null;
+let deletingStage = null;
+
 let editingUser = null;
 let deletingUser = null;
 let searchTimer = 0;
 let toastTimer = 0;
+let isFirstLoad = true;
 
 const admin = await requireAdmin();
 dom.adminName.textContent = admin.username;
+
+// Set username in mobile profile elements
+const mobileUsername = document.querySelector("#mobile-profile-username");
+const mobileMenuName = document.querySelector("#mobile-profile-menu-name");
+if (mobileUsername) mobileUsername.textContent = admin.username;
+if (mobileMenuName) mobileMenuName.textContent = admin.username;
+
+// Setup mobile profile dropdown toggling and logout
+const mobileProfileTrigger = document.querySelector("#mobile-profile-trigger");
+const mobileProfileDropdown = document.querySelector("#mobile-profile-dropdown");
+const mobileProfileLogout = document.querySelector("#mobile-profile-logout");
+
+if (mobileProfileTrigger && mobileProfileDropdown) {
+  mobileProfileTrigger.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const show = mobileProfileDropdown.hidden;
+    mobileProfileDropdown.hidden = !show;
+    mobileProfileTrigger.setAttribute("aria-expanded", String(show));
+  });
+
+  document.addEventListener("pointerdown", (e) => {
+    if (!mobileProfileTrigger.contains(e.target) && !mobileProfileDropdown.contains(e.target)) {
+      mobileProfileDropdown.hidden = true;
+      mobileProfileTrigger.setAttribute("aria-expanded", "false");
+    }
+  });
+}
+
+if (mobileProfileLogout) {
+  mobileProfileLogout.addEventListener("click", async () => {
+    await signOut();
+    window.location.replace("/");
+  });
+}
+
+// Load missions dynamically and initialize maps
+await initMissions();
+updateMissionsMap();
+initializeFilterGroups();
+
 bindEvents();
 renderFilterOptions();
 await refreshAll();
+
+// Start automatic silent background refresh every 3 seconds
+window.setInterval(() => {
+  refreshAll(false);
+}, 3000);
+
+function updateMissionsMap() {
+  missionById = new Map(missions.map((m) => [m.id, m]));
+}
+
+function initializeFilterGroups() {
+  filterGroups.submissions = [
+    { value: "all", label: "All missions", group: "Mission" },
+    ...missions.map((mission) => ({
+      value: mission.id,
+      label: `Mission ${mission.number} — ${mission.name}`,
+      group: "Mission",
+    })),
+  ];
+}
+
 
 function bindEvents() {
   dom.navButtons.forEach((button) => {
@@ -112,7 +207,27 @@ function bindEvents() {
   dom.statusField.querySelectorAll("[data-status]").forEach((button) => {
     button.addEventListener("click", () => setModalStatus(button.dataset.status));
   });
-  dom.confirmDeleteButton.addEventListener("click", deleteUser);
+  dom.confirmDeleteButton.addEventListener("click", handleDeleteConfirm);
+
+  // Stage builder events
+  dom.stageSizeField.addEventListener("input", handleGridSizeChange);
+  dom.brushButtons.forEach((btn) => {
+    btn.addEventListener("click", () => setBrush(btn.dataset.brush));
+  });
+  dom.gridClearBtn.addEventListener("click", () => {
+    builderObstacles.clear();
+    renderGridBuilder();
+  });
+  dom.stageForm.addEventListener("submit", handleStageFormSubmit);
+
+  const createStageBtn = document.querySelector("#create-stage-button");
+  if (createStageBtn) {
+    createStageBtn.addEventListener("click", () => openStageModal());
+  }
+
+  document.addEventListener("mouseup", () => {
+    isDrawing = false;
+  });
 
   document.addEventListener("pointerdown", (event) => {
     if (!dom.filterControl.contains(event.target)) closeFilter();
@@ -135,26 +250,54 @@ function bindEvents() {
       closeDrawer();
       closeUserModal();
       closeDeleteModal();
+      dom.stageModal.hidden = true;
     }
   });
 }
 
-async function refreshAll() {
-  setLoading(true);
+async function refreshAll(showLoading = true) {
+  if (showLoading) setLoading(true);
   try {
-    const [overviewResponse, userResponse, submissionResponse] = await Promise.all([
+    const [overviewResponse, userResponse, submissionResponse, stagesResponse] = await Promise.all([
       apiRequest("/api/admin/overview"),
       loadUsers(),
       loadSubmissions(),
+      loadStages(),
     ]);
-    overview = overviewResponse;
-    users = userResponse.items;
-    submissions = submissionResponse.items;
-    renderAll();
+
+    const overviewChanged = JSON.stringify(overview) !== JSON.stringify(overviewResponse);
+    const usersChanged = JSON.stringify(users) !== JSON.stringify(userResponse.items);
+    const submissionsChanged = JSON.stringify(submissions) !== JSON.stringify(submissionResponse.items);
+    const stagesChanged = JSON.stringify(stages) !== JSON.stringify(stagesResponse);
+
+    const dataChanged = overviewChanged || usersChanged || submissionsChanged || stagesChanged;
+
+    if (dataChanged || isFirstLoad) {
+      overview = overviewResponse;
+      users = userResponse.items;
+      submissions = submissionResponse.items;
+      stages = stagesResponse;
+      updateMissionsMap();
+      initializeFilterGroups();
+      renderAll();
+
+      if (!isFirstLoad) {
+        const bar = document.querySelector("#sync-bar");
+        if (bar) {
+          bar.classList.remove("syncing");
+          void bar.offsetWidth; // Trigger reflow
+          bar.classList.add("syncing");
+          setTimeout(() => {
+            bar.classList.remove("syncing");
+          }, 2000);
+        }
+      }
+      isFirstLoad = false;
+    }
   } catch (error) {
     showToast(error.message, true);
   } finally {
-    setLoading(false);
+    if (showLoading) setLoading(false);
   }
 }
 
@@ -184,11 +327,17 @@ function scheduleRefresh() {
     try {
       if (currentView === "users") users = (await loadUsers()).items;
       if (currentView === "submissions") submissions = (await loadSubmissions()).items;
+      if (currentView === "stages") {
+        stages = await loadStages();
+        updateMissionsMap();
+      }
       if (currentView === "dashboard") {
-        [users, submissions] = await Promise.all([
+        [users, submissions, stages] = await Promise.all([
           loadUsers().then((response) => response.items),
           loadSubmissions().then((response) => response.items),
+          loadStages(),
         ]);
+        updateMissionsMap();
       }
       renderAll();
     } catch (error) {
@@ -204,13 +353,15 @@ async function switchView(view) {
   dom.filterSearch.value = "";
   dom.navButtons.forEach((button) => button.classList.toggle("active", button.dataset.view === view));
   Object.entries(dom.views).forEach(([name, element]) => {
-    element.hidden = name !== view;
+    if (element) element.hidden = name !== view;
   });
   [dom.viewKicker.textContent, dom.viewTitle.textContent, dom.viewDescription.textContent] = viewCopy[view];
-  dom.createUserButton.hidden = view === "submissions";
+  dom.createUserButton.hidden = view !== "users";
   dom.globalSearch.placeholder = view === "submissions"
     ? "Search players, email, or code"
-    : "Search username or email";
+    : view === "stages"
+      ? "Search stage name, id or number"
+      : "Search username or email";
   renderFilterOptions();
   closeFilter();
   scheduleRefresh();
@@ -218,9 +369,9 @@ async function switchView(view) {
 
 function renderAll() {
   if (overview) renderOverview();
-  renderUsers();
-  renderSubmissions();
-  renderRecent();
+  if (currentView === "users") renderUsers();
+  if (currentView === "submissions") renderSubmissions();
+  if (currentView === "stages") renderStages();
   renderMissionPulse();
 }
 
@@ -380,6 +531,9 @@ function handleDelegatedClick(event) {
   if (event.target.closest("[data-close-drawer]")) closeDrawer();
   if (event.target.closest("[data-close-modal]")) closeUserModal();
   if (event.target.closest("[data-close-delete]")) closeDeleteModal();
+  if (event.target.closest("[data-close-stage-modal]")) {
+    dom.stageModal.hidden = true;
+  }
 }
 
 function openSubmission(id) {
@@ -530,6 +684,7 @@ function openDeleteModal(id) {
 function closeDeleteModal() {
   dom.deleteModal.hidden = true;
   deletingUser = null;
+  deletingStage = null;
 }
 
 async function deleteUser() {
@@ -611,6 +766,7 @@ function formatRelativeDate(value) {
 }
 
 function parseSqliteDate(value) {
+  if (!value) return new Date();
   return new Date(value.includes("T") ? value : `${value.replace(" ", "T")}Z`);
 }
 
@@ -627,4 +783,440 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+// STAGES AND STAGE BUILDER FUNCTIONS
+async function loadStages() {
+  await initMissions();
+  const search = dom.globalSearch.value.trim().toLowerCase();
+  if (search) {
+    return missions.filter((m) =>
+      m.name.toLowerCase().includes(search) ||
+      m.id.toLowerCase().includes(search) ||
+      m.number.includes(search)
+    );
+  }
+  return missions;
+}
+
+function renderStages() {
+  dom.stagesTableBody.innerHTML = "";
+  dom.stagesCount.textContent = `${stages.length} items`;
+  dom.stagesEmpty.hidden = stages.length > 0;
+
+  stages.forEach((stage) => {
+    const tr = document.createElement("tr");
+
+    const tdNumber = document.createElement("td");
+    tdNumber.textContent = stage.number;
+    tr.appendChild(tdNumber);
+
+    const tdId = document.createElement("td");
+    tdId.innerHTML = `<code>${escapeHtml(stage.id)}</code>`;
+    tr.appendChild(tdId);
+
+    const tdName = document.createElement("td");
+    tdName.innerHTML = `<strong>${escapeHtml(stage.name)}</strong><br><small style="color: var(--muted);">${escapeHtml(stage.subtitle || "")}</small>`;
+    tr.appendChild(tdName);
+
+    const tdSize = document.createElement("td");
+    tdSize.textContent = `${stage.size} × ${stage.size}`;
+    tr.appendChild(tdSize);
+
+    const tdStart = document.createElement("td");
+    tdStart.textContent = `[${stage.start[0]}, ${stage.start[1]}]`;
+    tr.appendChild(tdStart);
+
+    const tdGoal = document.createElement("td");
+    tdGoal.textContent = `[${stage.goal[0]}, ${stage.goal[1]}]`;
+    tr.appendChild(tdGoal);
+
+    const tdPar = document.createElement("td");
+    tdPar.textContent = stage.par;
+    tr.appendChild(tdPar);
+
+    const tdDiff = document.createElement("td");
+    tdDiff.innerHTML = renderStars(stage.difficulty);
+    tr.appendChild(tdDiff);
+
+    const tdObs = document.createElement("td");
+    tdObs.textContent = stage.obstacles.length;
+    tr.appendChild(tdObs);
+
+    const tdActions = document.createElement("td");
+    tdActions.className = "row-actions";
+
+    const editBtn = document.createElement("button");
+    editBtn.type = "button";
+    editBtn.title = "Edit stage";
+    editBtn.innerHTML = spriteIcon("pencil");
+    editBtn.addEventListener("click", () => openStageModal(stage));
+    tdActions.appendChild(editBtn);
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.type = "button";
+    deleteBtn.title = "Delete stage";
+    deleteBtn.className = "danger-action";
+    deleteBtn.innerHTML = spriteIcon("trash-2");
+    deleteBtn.addEventListener("click", () => openDeleteStageModal(stage));
+    tdActions.appendChild(deleteBtn);
+
+    tr.appendChild(tdActions);
+    dom.stagesTableBody.appendChild(tr);
+  });
+}
+
+function openDeleteStageModal(stage) {
+  deletingStage = stage;
+  dom.deleteCopy.textContent = `Stage ${stage.number} (${stage.name}), including all associated submissions, will be permanently deleted.`;
+  dom.deleteModal.hidden = false;
+}
+
+async function handleDeleteConfirm() {
+  if (deletingUser) {
+    await deleteUser();
+  } else if (deletingStage) {
+    await deleteStage();
+  }
+}
+
+async function deleteStage() {
+  if (!deletingStage) return;
+  dom.confirmDeleteButton.disabled = true;
+  try {
+    await apiRequest(`/api/admin/missions/${deletingStage.id}`, { method: "DELETE" });
+    closeDeleteModal();
+    showToast("Stage deleted");
+    await refreshAll();
+  } catch (error) {
+    showToast(error.message, true);
+  } finally {
+    dom.confirmDeleteButton.disabled = false;
+  }
+}
+
+function openStageModal(stage = null) {
+  dom.stageFormError.textContent = "";
+  dom.stageFormError.hidden = true;
+
+  if (stage) {
+    editingStage = stage;
+    dom.stageFormIsEdit.value = "true";
+    dom.stageIdField.value = stage.id;
+    dom.stageIdField.readOnly = true;
+    dom.stageNumberField.value = stage.number;
+    dom.stageNameField.value = stage.name;
+    dom.stageSubtitleField.value = stage.subtitle || "";
+    dom.stageDescriptionField.value = stage.description || "";
+    dom.stageSizeField.value = stage.size;
+    dom.stageParField.value = stage.par;
+    dom.stageDifficultyField.value = stage.difficulty;
+
+    builderStart = [...stage.start];
+    builderGoal = [...stage.goal];
+    builderObstacles = new Set(stage.obstacles.map((coord) => `${coord[0]},${coord[1]}`));
+    dom.stageModalTitle.textContent = "Edit game stage";
+  } else {
+    editingStage = null;
+    dom.stageFormIsEdit.value = "false";
+    dom.stageIdField.value = "";
+    dom.stageIdField.readOnly = false;
+    dom.stageNumberField.value = String(stages.length + 1).padStart(2, "0");
+    dom.stageNameField.value = "";
+    dom.stageSubtitleField.value = "";
+    dom.stageDescriptionField.value = "";
+    dom.stageSizeField.value = "5";
+    dom.stageParField.value = "8";
+    dom.stageDifficultyField.value = "1";
+
+    builderStart = [0, 0];
+    builderGoal = [4, 4];
+    builderObstacles = new Set();
+    dom.stageModalTitle.textContent = "Create game stage";
+  }
+
+  setBrush("obstacle");
+  updateCoordinateLabels();
+  renderGridBuilder();
+
+  // Auto slug generation for new stages
+  dom.stageNameField.addEventListener("input", handleNameInputToSlug);
+
+  dom.stageModal.hidden = false;
+}
+
+function handleNameInputToSlug() {
+  if (dom.stageFormIsEdit.value === "true") return;
+  const name = dom.stageNameField.value;
+  dom.stageIdField.value = name
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-_]/g, "")
+    .trim()
+    .replace(/\s+/g, "-");
+}
+
+function setBrush(brush) {
+  builderBrush = brush;
+  dom.brushButtons.forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.brush === brush);
+  });
+}
+
+// Ensure elements exist before updates
+function updateCoordinateLabels() {
+  if (dom.stageStartLabel) dom.stageStartLabel.textContent = `[${builderStart[0]}, ${builderStart[1]}]`;
+  if (dom.stageGoalLabel) dom.stageGoalLabel.textContent = `[${builderGoal[0]}, ${builderGoal[1]}]`;
+  checkPassability();
+}
+
+function handleGridSizeChange() {
+  let size = parseInt(dom.stageSizeField.value, 10);
+  if (isNaN(size) || size < 3) size = 3;
+  if (size > 20) size = 20;
+
+  dom.stageSizeField.value = size;
+
+  builderStart[0] = Math.min(builderStart[0], size - 1);
+  builderStart[1] = Math.min(builderStart[1], size - 1);
+
+  builderGoal[0] = Math.min(builderGoal[0], size - 1);
+  builderGoal[1] = Math.min(builderGoal[1], size - 1);
+
+  if (builderStart[0] === builderGoal[0] && builderStart[1] === builderGoal[1]) {
+    builderGoal[0] = (builderStart[0] + 1) % size;
+    builderGoal[1] = (builderStart[1] + 1) % size;
+  }
+
+  const validObstacles = new Set();
+  builderObstacles.forEach((key) => {
+    const [ox, oy] = key.split(",").map(Number);
+    if (ox < size && oy < size) {
+      validObstacles.add(key);
+    }
+  });
+  builderObstacles = validObstacles;
+
+  updateCoordinateLabels();
+  renderGridBuilder();
+}
+
+function renderGridBuilder() {
+  const size = parseInt(dom.stageSizeField.value, 10) || 5;
+  dom.gridBuilderCanvas.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+  dom.gridBuilderCanvas.innerHTML = "";
+
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const cell = document.createElement("div");
+      cell.className = "grid-builder-cell";
+      cell.dataset.x = x;
+      cell.dataset.y = y;
+
+      const isStart = builderStart[0] === x && builderStart[1] === y;
+      const isGoal = builderGoal[0] === x && builderGoal[1] === y;
+      const key = `${x},${y}`;
+      const isObstacle = builderObstacles.has(key);
+
+      if (isStart) {
+        cell.classList.add("cell-start");
+        cell.textContent = "S";
+      } else if (isGoal) {
+        cell.classList.add("cell-goal");
+        cell.textContent = "G";
+      } else if (isObstacle) {
+        cell.classList.add("cell-obstacle");
+      }
+
+      cell.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        handleCellClick(x, y);
+        isDrawing = true;
+        if (builderBrush === "obstacle") {
+          drawMode = !isObstacle;
+        }
+      });
+
+      cell.addEventListener("mouseenter", () => {
+        if (isDrawing && builderBrush === "obstacle") {
+          const cellKey = `${x},${y}`;
+          const currentIsStart = builderStart[0] === x && builderStart[1] === y;
+          const currentIsGoal = builderGoal[0] === x && builderGoal[1] === y;
+          if (!currentIsStart && !currentIsGoal) {
+            if (drawMode) {
+              builderObstacles.add(cellKey);
+            } else {
+              builderObstacles.delete(cellKey);
+            }
+            renderGridBuilder();
+          }
+        }
+      });
+
+      dom.gridBuilderCanvas.appendChild(cell);
+    }
+  }
+}
+
+function handleCellClick(x, y) {
+  const cellKey = `${x},${y}`;
+  const isStart = builderStart[0] === x && builderStart[1] === y;
+  const isGoal = builderGoal[0] === x && builderGoal[1] === y;
+
+  if (builderBrush === "start") {
+    if (isGoal) {
+      showToast("Start coordinate cannot overlap with Goal", true);
+      return;
+    }
+    builderObstacles.delete(cellKey);
+    builderStart = [x, y];
+  } else if (builderBrush === "goal") {
+    if (isStart) {
+      showToast("Goal coordinate cannot overlap with Start", true);
+      return;
+    }
+    builderObstacles.delete(cellKey);
+    builderGoal = [x, y];
+  } else if (builderBrush === "obstacle") {
+    if (isStart || isGoal) return;
+    if (builderObstacles.has(cellKey)) {
+      builderObstacles.delete(cellKey);
+    } else {
+      builderObstacles.add(cellKey);
+    }
+  }
+
+  updateCoordinateLabels();
+  renderGridBuilder();
+}
+
+async function handleStageFormSubmit(e) {
+  e.preventDefault();
+  dom.stageFormError.textContent = "";
+  dom.stageFormError.hidden = true;
+
+  if (!checkPassability()) {
+    dom.stageFormError.textContent = "Cannot save: Stage is impossible to solve (no passable route from Start to Goal).";
+    dom.stageFormError.hidden = false;
+    return;
+  }
+
+  dom.saveStageButton.disabled = true;
+
+  const isEdit = dom.stageFormIsEdit.value === "true";
+  const id = dom.stageIdField.value.trim();
+  const number = dom.stageNumberField.value.trim();
+  const name = dom.stageNameField.value.trim();
+  const subtitle = dom.stageSubtitleField.value.trim();
+  const description = dom.stageDescriptionField.value.trim();
+  const size = parseInt(dom.stageSizeField.value, 10);
+  const par = parseInt(dom.stageParField.value, 10);
+  const difficulty = parseInt(dom.stageDifficultyField.value, 10);
+
+  const obstacles = Array.from(builderObstacles).map((key) => key.split(",").map(Number));
+
+  const payload = {
+    id,
+    number,
+    name,
+    subtitle,
+    description,
+    size,
+    start: builderStart,
+    goal: builderGoal,
+    par,
+    difficulty,
+    obstacles,
+  };
+
+  try {
+    if (isEdit) {
+      await apiRequest(`/api/admin/missions/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      });
+      showToast("Stage updated");
+    } else {
+      await apiRequest("/api/admin/missions", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+      showToast("Stage created");
+    }
+    dom.stageNameField.removeEventListener("input", handleNameInputToSlug);
+    dom.stageModal.hidden = true;
+    await refreshAll();
+  } catch (error) {
+    dom.stageFormError.textContent = error.message;
+    dom.stageFormError.hidden = false;
+  } finally {
+    dom.saveStageButton.disabled = false;
+  }
+}
+
+function checkPassability() {
+  const size = parseInt(dom.stageSizeField.value, 10) || 5;
+  const shortestPath = findShortestPath(size, builderStart, builderGoal, builderObstacles);
+  const passable = shortestPath !== -1;
+  
+  if (dom.stagePassableBadge) {
+    if (passable) {
+      dom.stagePassableBadge.textContent = `Passable (${shortestPath} steps)`;
+      dom.stagePassableBadge.style.background = "rgba(93, 176, 117, 0.15)";
+      dom.stagePassableBadge.style.color = "#5db075";
+      dom.stagePassableBadge.style.border = "1px solid rgba(93, 176, 117, 0.3)";
+      
+      // Update minimum par steps
+      if (dom.stageParField) {
+        dom.stageParField.min = shortestPath;
+        const currentPar = parseInt(dom.stageParField.value, 10);
+        if (isNaN(currentPar) || currentPar < shortestPath) {
+          dom.stageParField.value = shortestPath;
+        }
+      }
+    } else {
+      dom.stagePassableBadge.textContent = "No Path";
+      dom.stagePassableBadge.style.background = "rgba(239, 68, 68, 0.15)";
+      dom.stagePassableBadge.style.color = "#ef4444";
+      dom.stagePassableBadge.style.border = "1px solid rgba(239, 68, 68, 0.3)";
+      
+      if (dom.stageParField) {
+        dom.stageParField.removeAttribute("min");
+      }
+    }
+  }
+  return passable;
+}
+
+function findShortestPath(size, start, goal, obstacles) {
+  const queue = [[start[0], start[1], 0]];
+  const visited = new Set([`${start[0]},${start[1]}`]);
+
+  while (queue.length > 0) {
+    const [cx, cy, steps] = queue.shift();
+    if (cx === goal[0] && cy === goal[1]) {
+      return steps;
+    }
+
+    const directions = [
+      [0, -1], // Up
+      [0, 1],  // Down
+      [-1, 0], // Left
+      [1, 0]   // Right
+    ];
+
+    for (const [dx, dy] of directions) {
+      const nx = cx + dx;
+      const ny = cy + dy;
+      const key = `${nx},${ny}`;
+
+      if (nx >= 0 && nx < size && ny >= 0 && ny < size) {
+        if (!obstacles.has(key) && !visited.has(key)) {
+          visited.add(key);
+          queue.push([nx, ny, steps + 1]);
+        }
+      }
+    }
+  }
+
+  return -1;
 }
